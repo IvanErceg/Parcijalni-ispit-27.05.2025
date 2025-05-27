@@ -1,0 +1,104 @@
+STVARANJE TABLICA
+
+
+CREATE TABLE Polaznik (
+    PolaznikID INT IDENTITY(1,1) PRIMARY KEY,
+    Ime NVARCHAR(100) NOT NULL,
+    Prezime NVARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE ProgramObrazovanja (
+    ProgramObrazovanjaID INT IDENTITY(1,1) PRIMARY KEY,
+    Naziv NVARCHAR(100) NOT NULL,
+    CSvet INT NOT NULL
+);
+
+
+CREATE TABLE Upis (
+    UpisID INT IDENTITY(1,1) PRIMARY KEY,
+    IDPolaznik INT NOT NULL,
+    IDProgramObrazovanja INT NOT NULL,
+    FOREIGN KEY (IDPolaznik) REFERENCES Polaznik(PolaznikID),
+    FOREIGN KEY (IDProgramObrazovanja) REFERENCES ProgramObrazovanja(ProgramObrazovanjaID)
+);
+
+
+
+
+
+
+
+SELECT* FROM Polaznik
+SELECT*FROM ProgramObrazovanja
+SELECT * FROM Upis
+
+
+
+
+PROCEDURE
+
+CREATE PROCEDURE DodajPolaznika
+    @Ime NVARCHAR(100),
+    @Prezime NVARCHAR(100)
+AS
+BEGIN
+    INSERT INTO Polaznik (Ime, Prezime)
+    VALUES (@Ime, @Prezime);
+END;
+
+
+
+
+CREATE PROCEDURE DodajProgramObrazovanja
+    @Naziv NVARCHAR(100),
+    @CSvet INT
+AS
+BEGIN
+    INSERT INTO ProgramObrazovanja (Naziv, CSvet)
+    VALUES (@Naziv, @CSvet);
+END;
+
+
+
+
+CREATE PROCEDURE UpisiPolaznikaNaProgram
+    @IDPolaznik INT,
+    @IDProgramObrazovanja INT
+AS
+BEGIN
+    INSERT INTO Upis (IDPolaznik, IDProgramObrazovanja)
+    VALUES (@IDPolaznik, @IDProgramObrazovanja);
+END;
+
+
+
+
+
+CREATE PROCEDURE PrebaciPolaznika
+    @PolaznikID INT,
+    @NoviProgramID INT
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+
+        UPDATE Upis
+        SET IDProgramObrazovanja = @NoviProgramID
+        WHERE IDPolaznik = @PolaznikID;
+
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+            RAISERROR('Polaznik nije pronađen kao upisan.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        PRINT 'Transakcija nije uspjela' ;
+    END CATCH
+END;
