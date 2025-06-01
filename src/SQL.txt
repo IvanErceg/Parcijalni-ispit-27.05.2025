@@ -102,3 +102,22 @@ BEGIN
         PRINT 'Transakcija nije uspjela' ;
     END CATCH
 END;
+
+
+
+CREATE PROCEDURE IspisiPolaznikeSaProgramima
+    @IDProgram INT
+AS
+BEGIN
+    SELECT
+        p.Ime,
+        p.Prezime,
+        po.Naziv AS NazivPrograma,
+        po.CSVET AS CSVETBodovi
+    FROM
+        Upis u
+    INNER JOIN Polaznik p ON u.IDPolaznik = p.PolaznikID
+    INNER JOIN ProgramObrazovanja po ON u.IDProgramObrazovanja = po.ProgramObrazovanjaID
+    WHERE
+        po.ProgramObrazovanjaID = @IDProgram;
+END;
